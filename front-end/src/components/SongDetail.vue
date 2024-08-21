@@ -1,14 +1,20 @@
-//歌曲详情
+<!--歌曲详情-->
 <script setup>
 import {GetSongDetail, LyricList, SongDetail, SongDetailVisible, SongId} from "@/js/SongDetail.js";
 import {onMounted} from "vue";
 import {HandlePlayNow, MusicPlayerVisible} from "@/js/MusicPlayer.js";
+import { SubscribeUser } from '@/js/SubscribeUser.js'
 
 onMounted(GetSongDetail)
+
+const SubScribe=(id)=>{
+  SongDetail.value.isSubscribed=!SongDetail.value.isSubscribed;
+  SubscribeUser(id);
+}
 </script>
 
 <template>
-  <div class="h-screen w-full overflow-auto flex flex-row">
+  <div class="h-screen w-full overflow-auto flex flex-row z-50 bg-[#FAF7F5]">
     <div class="block w-2/5 my-auto">
       <div class="btn btn-sm mt-2" @click="SongDetailVisible=false">
         <img src="./icons/Return_Icon.svg" alt="返回">
@@ -19,8 +25,9 @@ onMounted(GetSongDetail)
           <div class="text-4xl w-full my-1">{{ SongDetail.title }}</div>
           <div class="text-base text-gray-60 ml-2 w-full my-1">歌手:{{ SongDetail.singer }}</div>
           <div class="w-full my-1">
-            <div class="inline tooltip tooltip-primary" data-tip="关注用户">
-              <img src="./icons/SubscribeUser_Icon.svg" alt="关注用户" class="inline">
+            <div class="inline tooltip tooltip-primary" :data-tip="SongDetail.isSubscribed===false?'关注用户':'取消关注'" @click="SubScribe(SongDetail.uploader)">
+              <img src="./icons/SubscribeUser_Icon.svg" alt="关注" class="inline" v-if="SongDetail.isSubscribed">
+              <img src="./icons/NotSubscribeUser_Icon.svg" alt="未关注" class="inline" v-else>
             </div>
             <span class="ml-2">{{ SongDetail.uploader }}</span>
             <span>・</span>
@@ -62,7 +69,7 @@ onMounted(GetSongDetail)
       <div class="w-full flex" v-for="(Content,index) in LyricList" :key="index">
         <span class="mx-auto">{{ Content.content }}</span>
       </div>
-      <div class="h-36 w-full" v-if="MusicPlayerVisible"></div>
+      <div class="h-32 w-full" v-if="MusicPlayerVisible"></div>
     </div>
 
   </div>

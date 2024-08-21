@@ -1,9 +1,5 @@
-# 指定基础镜像为最新版 nginx
-FROM nginx:latest
-# 将项目下的 ./configs 文件夹放置在镜像中的 /home/nginx/configs 文件夹
-ADD ./configs /home/nginx/configs
-ADD ./dist /dist
-# 运行 nginx
-CMD ["nginx","-c","/home/nginx/configs/nginx.conf","-g", "daemon off;"]
-# 镜像对外暴露 3000 端口
-EXPOSE 9527
+# 设置基础镜像
+FROM nginx
+
+# 将dist文件中的内容复制到 /usr/share/nginx/html/ 这个目录下面
+COPY dist/  /usr/share/nginx/html/

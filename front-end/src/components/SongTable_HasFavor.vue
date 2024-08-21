@@ -3,17 +3,24 @@
 import {AddSongToCurrentPlayList, HandlePlayNow} from "@/js/MusicPlayer.js";
 import {ShowSongDetail} from "@/js/SongDetail.js";
 import {AddFavorSong, DeleteFavorSong} from "@/js/Favor.js";
+import { ActiveDialog, CheckLogin } from '@/js/MySongList.js'
 
 const Songs = defineModel('Songs');
 
 //添加喜爱歌曲
 const PageAddFavorSong = (SongId, index) => {
+  if (!CheckLogin()) {
+    return
+  }
   Songs.value[index].user_like = true;
   AddFavorSong(SongId);
 }
 
 //删除喜爱歌曲
 const PageDeleteFavorSong = (SongId, index) => {
+  if (!CheckLogin()) {
+    return
+  }
   Songs.value[index].user_like = false;
   DeleteFavorSong(SongId);
 }
@@ -33,7 +40,7 @@ const PageDeleteFavorSong = (SongId, index) => {
     </thead>
     <tbody>
     <tr v-for="(Song,index) in Songs" :key="index"
-        class="transition-colors ease-in duration-150 hover:bg-gray-300 hover:bg-opacity-40">
+        class="transition-colors ease-in duration-150 hover:bg-gray-300 hover:bg-opacity-40 cursor-pointer">
       <td>
         <img src="./icons/Like_Icon.svg" alt="喜欢" class="w-6 h-6" v-if="Song.user_like===true"
              @click="PageDeleteFavorSong(Song.id,index)">
@@ -64,7 +71,7 @@ const PageDeleteFavorSong = (SongId, index) => {
             <img src="./icons/Menu_Icon.svg" alt="详情">
           </div>
           <ul tabindex="0"
-              class="dropdown-content menu rounded-box z-[1] w-52 p-2 shadow bg-base-100"
+              class="dropdown-content dropdown-left dropdown-top menu rounded-box z-50 w-52 p-2 shadow bg-base-100"
               style="width:300px">
             <li>
               <div>
@@ -87,7 +94,7 @@ const PageDeleteFavorSong = (SongId, index) => {
               </div>
             </li>
             <li>
-              <div class="text-sm font-semibold">
+              <div class="text-sm font-semibold" @click="ActiveDialog(Song.id)">
                 <img src="./icons/AddToSongList_Icon.svg" alt="添加到歌单">
                 添加到歌单
               </div>

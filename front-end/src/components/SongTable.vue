@@ -2,6 +2,7 @@
 <script setup>
 import {AddSongToCurrentPlayList, HandlePlayNow} from "@/js/MusicPlayer.js";
 import {ShowSongDetail} from "@/js/SongDetail.js";
+import { ActiveDialog } from '@/js/MySongList.js'
 
 const props = defineProps({
   Songs: Array
@@ -20,7 +21,7 @@ const props = defineProps({
     </thead>
     <tbody>
     <tr v-for="(Song,index) in props.Songs" :key="index"
-        class="transition-colors ease-in duration-150 hover:bg-gray-300 hover:bg-opacity-40">
+        class="transition-colors ease-in duration-150 hover:bg-gray-300 hover:bg-opacity-40 cursor-pointer">
       <td @click="HandlePlayNow(Song.id)">
         <div class="flex items-center gap-3">
           <div class="avatar">
@@ -56,7 +57,7 @@ const props = defineProps({
               </div>
             </li>
             <li>
-              <div class="text-sm font-semibold"  @click="HandlePlayNow(Song.id)">
+              <div class="text-sm font-semibold" @click="HandlePlayNow(Song.id)">
                 <img src="./icons/PlayNow_Icon.svg" alt="立即播放" class="ml-1">
                 立即播放
               </div>
@@ -68,7 +69,7 @@ const props = defineProps({
               </div>
             </li>
             <li>
-              <div class="text-sm font-semibold">
+              <div class="text-sm font-semibold" @click="ActiveDialog(Song.id)">
                 <img src="./icons/AddToSongList_Icon.svg" alt="添加到歌单">
                 添加到歌单
               </div>

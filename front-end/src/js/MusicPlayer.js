@@ -1,6 +1,7 @@
 import {computed, ref} from 'vue';
 import instance from "@/js/axios.js";
 import {UserStore} from "@/stores/User.js";
+import { GetFullScreenLyric } from '@/js/HandleLyrics.js'
 
 //是否可见音乐播放器
 export const MusicPlayerVisible = ref(false);
@@ -32,6 +33,18 @@ export const VolumePercent = ref(40);
 export const PlayListVisible = ref(false);
 //是否全屏播放
 export const IsFullScreen = ref(false);
+//播放方式的提示
+export const MusicPlayModeDataTip = [
+    '列表循环',
+    '单曲循环',
+    '随机播放'
+]
+
+//将字符串形式时间转换为秒数
+export const TimeStringToSecond = (time) => {
+    let tmp = time.split(':');
+    return (parseInt(tmp[0]) * 60 + parseFloat(tmp[1])).toFixed(2);
+}
 
 //播放下一首歌
 export const NextSong = () => {
@@ -52,11 +65,32 @@ export const NextSong = () => {
     GetCurrentSongDetail();
 }
 
+
+//播放上一首歌
+export const PreviousSong = () => {
+    if (PlayType.value === 1) {
+        CurrentTime.value = 0;
+        return;
+    }
+    let index = CurrentPlayList.value.findIndex(item => item.id === CurrentSongId.value);
+    if (index === 0) {
+        index = CurrentPlayList.value.length - 1;
+    } else {
+        index--;
+    }
+    if (PlayType.value === 2) {
+        index = Math.floor(Math.random() * CurrentPlayList.value.length);
+    }
+    CurrentSongId.value = CurrentPlayList.value[index].id;
+    GetCurrentSongDetail();
+}
+
 //获取当前播放音乐的详细信息
 export const GetCurrentSongDetail = () => {
     instance.get('/songs/info/' + CurrentSongId.value)
         .then(response => {
             CurrentSongDetail.value = response.data.data;
+            GetFullScreenLyric(CurrentSongDetail.value.lyric);
             AddSongToCurrentPlayList(CurrentSongDetail.value);
             MusicPlayerVisible.value = true;
             Duration.value = parseInt(CurrentSongDetail.value.duration);
@@ -79,6 +113,13 @@ export const AddSongToCurrentPlayList = (song) => {
     CurrentPlayList.value.push(song);
 }
 
+//播放全部歌曲
+export const PlayAll=(PlayList)=>{
+    CurrentPlayList.value=PlayList;
+    CurrentSongId.value=CurrentPlayList.value[0].id;
+    GetCurrentSongDetail();
+}
+
 //立即播放当前歌曲
 export const HandlePlayNow = (id) => {
     CurrentSongId.value = id;
@@ -89,8 +130,8 @@ export const HandlePlayNow = (id) => {
 
 //获取播放列表
 export const GetPlayList = () => {
-    if(UserStore().State === false){
-        CurrentPlayList.value=[];
+    if (UserStore().State === false) {
+        CurrentPlayList.value = [];
         return;
     }
     instance.get('/feature/recent', {
